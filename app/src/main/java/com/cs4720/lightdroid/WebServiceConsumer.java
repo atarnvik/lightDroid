@@ -1,9 +1,11 @@
 package com.cs4720.lightdroid;
 
 import android.app.Activity;
+import android.media.AudioFormat;
+import android.media.AudioRecord;
+import android.media.MediaRecorder;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -24,6 +26,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.util.Timer;
+import java.util.TimerTask;
 
 
 public class WebServiceConsumer extends Activity {
@@ -50,6 +54,10 @@ public class WebServiceConsumer extends Activity {
 
             }
         });
+
+        Timer timer = new Timer();
+        timer.scheduleAtFixedRate(new SoundMeter(), 0, 50);
+
     }
 
     @Override
@@ -75,18 +83,22 @@ public class WebServiceConsumer extends Activity {
         EditText text = (EditText) findViewById(R.id.ipAddr);
         String ipAddr = text.getText().toString();
 
-        new SendData().execute(ipAddr);
+        new SendData(-1.0).execute(ipAddr);
     }
 
     public void sendPost (View view) {
         EditText text = (EditText) findViewById(R.id.ipAddr);
         String ipAddr = text.getText().toString();
 
-        new SendData().execute(ipAddr);
+        new SendData(-1.0).execute(ipAddr);
 
     }
 
     class SendData extends AsyncTask<String, Void, String> {
+        private double micIntensity;
+        public SendData(double micIntensity) {
+            this.micIntensity = micIntensity;
+        }
         @Override
         protected String doInBackground(String... urls) {
             try{
@@ -111,12 +123,16 @@ public class WebServiceConsumer extends Activity {
                         Toast toast = Toast.makeText(getApplicationContext(), "Colors need to be between 0 and 255", Toast.LENGTH_LONG);
                         return null;
                     }
-                    Log.w("colors", Integer.toString(redValue));
                     jsonLight.put("lightId", 1);
                     jsonLight.put("red", redValue);
                     jsonLight.put("green", greenValue);
                     jsonLight.put("blue", blueValue);
-                    jsonLight.put("intensity", intensity);
+                    if(micIntensity == -1) {
+                        jsonLight.put("intensity", intensity);
+                    }
+                    else {
+                        jsonLight.put("intensity", micIntensity);
+                    }
 
                     JSONArray lightsList = new JSONArray();
                     lightsList.put(jsonLight);
@@ -151,5 +167,60 @@ public class WebServiceConsumer extends Activity {
             }
             return null;
         }
+    }
+
+    public class SoundMeter extends TimerTask {
+
+        private AudioRecord ar = null;
+        private int minSize;
+        public double reference = 0.0002;
+
+        public void start() {
+            minSize= AudioRecord.getMinBufferSize(8000, AudioFormat.CHANNEL_IN_MONO, AudioFormat.ENCODING_PCM_16BIT);
+            ar = new AudioRecord(MediaRecorder.AudioSource.MIC, 8000,AudioFormat.CHANNEL_IN_MONO, AudioFormat.ENCODING_PCM_16BIT,minSize);
+            ar.startRecording();
+        }
+
+        public void run() {
+            double total = 0;
+            start();
+            try {
+                Thread.sleep(5);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            double average = getAmplitude();
+            stop();
+            double pressure = average / 51805.5336; //the value 51805.5336 can be derived from asuming that x=32767=0.6325 Pa and x=1 = 0.00002 Pa (the reference value)
+            double db = (20 * Math.log10(pressure / reference));
+
+            db = (db - 50) / 25;
+
+            if (db != Double.POSITIVE_INFINITY || db != Double.NEGATIVE_INFINITY) {
+                EditText text = (EditText) findViewById(R.id.ipAddr);
+                String ipAddr = text.getText().toString();
+                new SendData(db).execute(ipAddr);
+            }
+        }
+        public void stop() {
+            if (ar != null) {
+                ar.stop();
+            }
+        }
+
+        public double getAmplitude() {
+            short[] buffer = new short[minSize];
+            ar.read(buffer, 0, minSize);
+            int max = 0;
+            for (short s : buffer)
+            {
+                if (Math.abs(s) > max)
+                {
+                    max = Math.abs(s);
+                }
+            }
+            return max;
+        }
+
     }
 }
