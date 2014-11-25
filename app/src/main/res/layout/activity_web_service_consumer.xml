@@ -7,25 +7,33 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     android:paddingBottom="@dimen/activity_vertical_margin"
     tools:context="com.cs4720.lightdroid.WebServiceConsumer">
-
-    <TextView
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceLarge"
-        android:text="Welcome!"
-        android:id="@+id/textView"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentStart="true" />
-
-    <EditText
-        android:layout_width="wrap_content"
+        android:orientation="horizontal"
+        android:layout_centerHorizontal="true"
+        android:id="@+id/linearLayout">
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:text="LightDroid"
+            android:layout_gravity="center"
+            android:id="@+id/textView"/>
+    </LinearLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/ipAddr"
-        android:layout_below="@+id/textView"
-        android:layout_alignParentStart="true"
-        android:autoText="false"
-        android:hint="IP Address"
-        android:layout_alignEnd="@+id/propagateSwitch" />
+        android:orientation="horizontal"
+        android:layout_below="@id/linearLayout"
+        android:id="@+id/ipAddress">
+        <EditText
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/ipAddr"
+            android:autoText="false"
+            android:hint="IP Address" />
+    </LinearLayout>
 
     <Button
         android:layout_width="wrap_content"
@@ -36,77 +44,90 @@
         android:layout_centerHorizontal="true"
         android:onClick="sendPost"/>
 
-    <Switch
-        android:layout_width="wrap_content"
+
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Propagate"
-        android:id="@+id/propagateSwitch"
-        android:checked="false"
-        android:layout_toStartOf="@+id/button"
-        android:layout_below="@+id/ipAddr"
-        android:layout_alignParentStart="true" />
+        android:orientation="horizontal"
+        android:id="@+id/propSwitch"
+        android:layout_below="@id/ipAddress">
+        <Switch
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Propagate"
+            android:id="@+id/propagateSwitch"
+            android:checked="false"/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:id="@+id/seekBar"></LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:id="@+id/intensityLabelLayout"
+        android:layout_below="@id/propSwitch">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:text="Light Intensity"
+            android:id="@+id/textView2"
+            android:layout_marginTop="32dp"/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/button"
+        android:id="@+id/linearLayout2">
+        <EditText
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:inputType="number"
+            android:ems="10"
+            android:id="@+id/redValue"
+            android:layout_weight="1"
+            android:hint="Red" />
+
+        <EditText
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:inputType="number"
+            android:ems="10"
+            android:id="@+id/greenValue"
+            android:layout_weight="1"
+            android:hint="Green" />
+
+        <EditText
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:inputType="number"
+            android:ems="10"
+            android:layout_weight="1"
+            android:id="@+id/blueValue"
+            android:hint="Blue" />
+    </LinearLayout>
 
     <SeekBar
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/intensityBar"
-        android:layout_below="@+id/textView2"
-        android:layout_alignParentStart="true"
-        android:layout_alignParentEnd="true"
-        android:indeterminate="false" />
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceMedium"
-        android:text="Light Intensity"
-        android:id="@+id/textView2"
-        android:layout_marginTop="32dp"
-        android:layout_below="@+id/propagateSwitch"
+        android:indeterminate="false"
+        android:layout_below="@+id/intensityLabelLayout"
         android:layout_alignParentStart="true" />
 
     <TextView
+        android:layout_gravity="center_horizontal"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceMedium"
         android:text="Colors"
         android:id="@+id/textView3"
-        android:layout_below="@+id/intensityBar"
-        android:layout_alignParentStart="true"
-        android:layout_marginTop="37dp" />
-
-    <EditText
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:inputType="number"
-        android:ems="10"
-        android:id="@+id/redValue"
-        android:layout_below="@+id/textView3"
-        android:layout_alignParentStart="true"
-        android:layout_marginTop="31dp"
-        android:layout_alignEnd="@+id/textView2"
-        android:hint="Red" />
-
-    <EditText
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:inputType="number"
-        android:ems="10"
-        android:id="@+id/greenValue"
-        android:layout_toEndOf="@+id/redValue"
-        android:layout_alignTop="@+id/redValue"
-        android:layout_toStartOf="@+id/button"
-        android:hint="Green" />
-
-    <EditText
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:inputType="number"
-        android:ems="10"
-        android:id="@+id/blueValue"
-        android:layout_alignTop="@+id/greenValue"
-        android:layout_toEndOf="@+id/greenValue"
-        android:layout_alignEnd="@+id/button"
-        android:hint="Blue" />
-
+        android:layout_above="@+id/linearLayout2"
+        android:layout_alignStart="@+id/button" />
 </RelativeLayout>
