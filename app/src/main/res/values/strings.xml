@@ -2,8 +2,9 @@
 <resources>
 
     <string name="app_name">LightDroid</string>
-    <string name="title_activity_web_service_consumer">WebServiceConsumer</string>
+    <string name="title_activity_web_service_consumer">Light Droid</string>
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
+    <string name="facebook_app_id">1003353956348552</string>
 
 </resources>

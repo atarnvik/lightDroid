@@ -13,13 +13,15 @@
         android:orientation="horizontal"
         android:layout_centerHorizontal="true"
         android:id="@+id/linearLayout">
-        <TextView
+
+        <Button
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceLarge"
-            android:text="LightDroid"
-            android:layout_gravity="center"
-            android:id="@+id/textView"/>
+            android:text="Share Our Work!"
+            android:id="@+id/facebookShare"
+            android:background="#3B5998"
+            android:onClick="shareOurWork"
+            android:textColor="#FFFFFF" />
     </LinearLayout>
     <LinearLayout
         android:layout_width="match_parent"
@@ -28,7 +30,7 @@
         android:layout_below="@id/linearLayout"
         android:id="@+id/ipAddress">
         <EditText
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:id="@+id/ipAddr"
             android:autoText="false"
@@ -50,13 +52,26 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:id="@+id/propSwitch"
-        android:layout_below="@id/ipAddress">
+        android:layout_below="@id/ipAddress"
+        android:weightSum="1">
         <Switch
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Propagate"
             android:id="@+id/propagateSwitch"
             android:checked="false"/>
+
+        <Space
+            android:layout_width="97dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1.19" />
+
+        <Switch
+            android:layout_width="208dp"
+            android:layout_height="wrap_content"
+            android:text="Manual"
+            android:id="@+id/manualSwitch"
+            android:checked="false" />
     </LinearLayout>
 
     <LinearLayout
@@ -118,8 +133,9 @@
         android:layout_height="wrap_content"
         android:id="@+id/intensityBar"
         android:indeterminate="false"
+        android:layout_alignParentStart="true"
         android:layout_below="@+id/intensityLabelLayout"
-        android:layout_alignParentStart="true" />
+        android:layout_alignParentEnd="true" />
 
     <TextView
         android:layout_gravity="center_horizontal"
@@ -129,5 +145,15 @@
         android:text="Colors"
         android:id="@+id/textView3"
         android:layout_above="@+id/linearLayout2"
-        android:layout_alignStart="@+id/button" />
+        android:layout_centerHorizontal="true" />
+
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/microphoneImage"
+        android:layout_centerVertical="true"
+        android:layout_centerHorizontal="true"
+        android:src="@drawable/android_microphone"
+        android:alpha=".9" />
+
 </RelativeLayout>

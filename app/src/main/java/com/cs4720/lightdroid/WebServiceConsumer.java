@@ -1,18 +1,26 @@
 package com.cs4720.lightdroid;
 
 import android.app.Activity;
+import android.content.Intent;
+import android.graphics.Color;
 import android.media.AudioFormat;
 import android.media.AudioRecord;
 import android.media.MediaRecorder;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.CompoundButton;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.Switch;
 import android.widget.Toast;
+
+import com.facebook.UiLifecycleHelper;
+import com.facebook.widget.FacebookDialog;
 
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
@@ -32,16 +40,29 @@ import java.util.TimerTask;
 
 public class WebServiceConsumer extends Activity {
 
+    private UiLifecycleHelper uiHelper;
+    private Timer timer;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_web_service_consumer);
 
+        uiHelper = new UiLifecycleHelper(this, null);
+        uiHelper.onCreate(savedInstanceState);
+
         SeekBar seekBar = (SeekBar) findViewById(R.id.intensityBar);
         seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
-                sendPostInternal();
+                Switch manualSwitch = (Switch) findViewById(R.id.manualSwitch);
+                if(manualSwitch.isChecked()){
+                    ImageView micImg = (ImageView)findViewById(R.id.microphoneImage);
+                    double intensity = (double)seekBar.getProgress()/100.0;
+                    micImg.setAlpha((float)intensity);
+                    sendPostInternal();
+                }
+
             }
 
             @Override
@@ -55,8 +76,21 @@ public class WebServiceConsumer extends Activity {
             }
         });
 
-        Timer timer = new Timer();
+        timer = new Timer();
         timer.scheduleAtFixedRate(new SoundMeter(), 0, 50);
+
+        Switch manualSwitch = (Switch) findViewById(R.id.manualSwitch);
+        manualSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
+                if(isChecked){
+                    timer.cancel();
+                }else{
+                    timer = new Timer();
+                    timer.scheduleAtFixedRate(new SoundMeter(), 0, 50);
+                }
+            }
+        });
 
     }
 
@@ -127,7 +161,13 @@ public class WebServiceConsumer extends Activity {
                     jsonLight.put("red", redValue);
                     jsonLight.put("green", greenValue);
                     jsonLight.put("blue", blueValue);
-                    if(micIntensity == -1) {
+
+                    ImageView micImg = (ImageView) findViewById(R.id.microphoneImage);
+                    micImg.setColorFilter(Color.rgb(redValue, greenValue, blueValue));
+
+                    Switch manualSwitch = (Switch) findViewById(R.id.manualSwitch);
+
+                    if(micIntensity == -1 || manualSwitch.isChecked()) {
                         jsonLight.put("intensity", intensity);
                     }
                     else {
@@ -196,9 +236,23 @@ public class WebServiceConsumer extends Activity {
 
             db = (db - 50) / 25;
 
+            final double dbUI = db;
+
             if (db != Double.POSITIVE_INFINITY || db != Double.NEGATIVE_INFINITY) {
                 EditText text = (EditText) findViewById(R.id.ipAddr);
                 String ipAddr = text.getText().toString();
+                Log.w("Intensity", Double.toString(db));
+
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        ImageView microphoneImg = (ImageView) findViewById(R.id.microphoneImage);
+
+                        microphoneImg.setAlpha((float)dbUI);
+                    }
+                });
+
+
                 new SendData(db).execute(ipAddr);
             }
         }
@@ -222,5 +276,57 @@ public class WebServiceConsumer extends Activity {
             return max;
         }
 
+    }
+
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        uiHelper.onActivityResult(requestCode, resultCode, data, new FacebookDialog.Callback() {
+            @Override
+            public void onError(FacebookDialog.PendingCall pendingCall, Exception error, Bundle data) {
+                Log.e("Activity", String.format("Error: %s", error.toString()));
+            }
+
+            @Override
+            public void onComplete(FacebookDialog.PendingCall pendingCall, Bundle data) {
+                Log.i("Activity", "Success!");
+            }
+
+
+        });
+
+    }
+
+    public void shareOurWork(View view) {
+        FacebookDialog shareDialog = new FacebookDialog.ShareDialogBuilder(this)
+                .setLink("https://github.com/atarnvik/lightDroid")
+                .build();
+        uiHelper.trackPendingDialogCall(shareDialog.present());
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        uiHelper.onResume();
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        uiHelper.onSaveInstanceState(outState);
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        uiHelper.onPause();
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        uiHelper.onDestroy();
     }
 }
